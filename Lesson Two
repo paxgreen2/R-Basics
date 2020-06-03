@@ -1,0 +1,41 @@
+install.packages('pacman')
+
+# Now that we have installed pacman, we can use it to load other packages, like tidyverse
+# We will use tidyverse to manipulate datasets 
+
+pacman::p_load(tidyverse)
+
+## In lesson 1, we loaded a dataset into an object dat0
+# To look at the first 6 rows of dat0, use the command head
+
+head(dat0)
+
+# We will select only those rows that have clase = 6B using filter
+
+dat1 <- dat0 %>%
+filter(clase == '6B')
+
+print(dat1)
+
+# We select four columns using select
+
+dat2 <- dat1 %>%
+select(student_id, math, science,clase)
+
+print(dat2)
+
+### We select rows where clase = 2B or clase = 6B
+
+dat3 <- dat0 %>%
+filter(clase == '6B' | clase == '2B')
+
+print(dat3)
+
+## We calculate the average score for math in all classes
+
+dat4 <- dat0 %>%
+group_by(clase) %>%
+summarise(promedia_math = mean(math)) %>%
+data.frame()
+
+print(dat4)
