@@ -1,0 +1,33 @@
+###############################################
+# LESSON 1: VARIABLES AND FUNCTIONS
+###############################################
+
+# In R, there are 2 main objects: (1) variable and (2)function
+
+# (1) variable can store anything: a number, a dataset, an image
+
+# example of storing a number
+x <- 5
+print(x)
+
+# example of storing a dataset
+
+dat0 <- readRDS(gzcon(url("http://pax.green/lessons/files/estudiantes.rds"))) 
+print(dat0)
+
+# (2) example of a simple function
+
+multiply <- function(x,y) {
+  result <- (x * y)
+  return(result)
+}
+
+# execute the function
+z <- multiply(4,5)
+print(z)
+
+# you can also do this:
+x <- 5
+y <- 7
+z <- multiply(x,y)
+print(z)
