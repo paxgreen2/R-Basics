@@ -1,0 +1,30 @@
+pacman::p_load(tidyverse)
+
+estudiantes = readRDS(gzcon(url("http://pax.green/lessons/files/estudiantes.rds")))   
+
+familia = readRDS(gzcon(url("http://pax.green/lessons/files/familia.rds")))    
+
+enlazar = readRDS(gzcon(url("http://pax.green/lessons/files/enlazar.rds")))
+
+head(estudiantes)
+head(familia)
+head(enlazar)      
+
+foo <- estudiantes %>%
+left_join(enlazar,by='student_id') %>%
+left_join(familia,by='fam_id_fam') %>%
+filter(complete.cases(.))     
+
+head(foo)
+                                                             
+foo2 <- foo %>%
+mutate(promedia = (lang + math + science + social)/4)
+
+head(foo2)
+
+foo3 <- foo2 %>%
+group_by(tipo) %>%
+summarise(avg = mean(promedia)) %>%
+data.frame()
+
+head(foo3)
