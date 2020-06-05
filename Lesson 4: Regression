@@ -1,0 +1,32 @@
+pacman::p_load(tidyverse,ggplot2)
+
+dat0 = readRDS(gzcon(url("http://pax.green/lessons/files/clorofilo.rds")))
+
+## SCATTERPLOT
+
+plot0 <- ggplot(data=dat0, aes(x = C,y = CLO))
+plot1 <- plot0 + geom_point()
+plot1
+
+## CREATE REGRESSION MODEL
+
+mod0 <- lm(CLO ~ C, data= dat0)  
+summary(mod0)
+
+##
+
+plot2 <- plot1 + stat_smooth(method = "lm", col = "red")
+plot2
+
+
+
+## ALTERNATIVE MODEL 
+
+mod1 <- lm(CLO ~ C + TEMP , data= dat0)  
+summary(mod1)   
+
+####   AKAIKE INFORMATION CRITERION
+AIC(mod0)
+AIC(mod1) 
+
+########
