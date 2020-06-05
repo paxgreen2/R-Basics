@@ -1,0 +1,9 @@
+dat1 <- dat0 %>%
+filter(HUC == '020503061713' | HUC == '020700100307' | HUC == '020802080206')
+
+
+p <- ggplot(dat1, aes(x=HUC, y=CLO)) + 
+  geom_boxplot()
+  
+mod3 <- aov(CLO ~ HUC, data = dat1)
+summary(mod3)
