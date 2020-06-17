@@ -1,0 +1,11 @@
+
+pacman::p_load(tidyverse,ggplot2)
+
+dat0 <- readRDS(gzcon(url("http://pax.green/lessons/files/max.rds"))) 
+head(dat0)
+
+dat1 <- dat0 %>%
+mutate(longevity = ntile(time.at.current.address,20))
+
+ggplot(dat1,aes(longevity,no.years.completed)) + geom_smooth() +
+facet_wrap(~current.address)
