@@ -1,0 +1,66 @@
+pacman::p_load(tidyverse,ggplot2)
+
+clo = readRDS(gzcon(url("http://pax.green/lessons/files/clorofilo.rds")))
+
+##################################################
+### ¿Cuál es la forma de la distribución de Y?
+
+ggplot(data=clo) + geom_histogram(aes(CLO),binwidth = 0.15)
+windows()
+ggplot(data=clo) + geom_histogram(aes(log(CLO)),binwidth = 0.15)
+
+##########
+## ¿Cuál es la forma del modelo lineal?
+
+clo2 = clo %>%
+select(CLO,PH,F,C) %>%
+mutate(logCLO = log(CLO)
+,logC = log(C)
+,logF = log(F))
+
+#######
+Y = clo2$logCLO
+X = clo2$logC
+
+B0 = -0.5   # interceptar
+B1 = 1.0    # pendiente
+
+## PRIMERO POLYNOMIAL
+mod1 = B0 + B1*X
+
+ggplot() + stat_smooth(aes(x = X, y = modY1),
+level = 0.95, color = 'blue', size = 0.7)
+
+## SEGUNDO POLYNOMIAL
+mod2 = B0 + B1*X + B1*(X^2)
+windows()
+ggplot() + stat_smooth(aes(x = X, y = modY2),
+level = 0.95, color = 'blue', size = 0.7)
+
+###########################################
+###############################
+p = ggplot(data=clo2)
+
+p + stat_smooth(aes(x = logC, y = logCLO),
+level = 0.95, color = 'blue', size = 0.7)
+
+p + stat_smooth(aes(x = logF, y = logCLO),
+level = 0.95, color = 'blue', size = 0.7)
+
+p + stat_smooth(aes(x = PH, y = logCLO),
+level = 0.95, color = 'blue', size = 0.7)
+
+##############################################
+
+##############################################
+pacman::p_load(rstanarm,loo)
+
+mod1 = stan_glm(logCLO ~ logC + logF + PH, data = clo2)
+
+mod2 = stan_glm(logCLO ~ logC + I(logC^2) + logF + PH, data=clo2)
+
+
+loo1 = loo(mod1)
+loo2 = loo(mod2)
+
+loo_compare(loo1, loo2) # higher elpd_diff is better
