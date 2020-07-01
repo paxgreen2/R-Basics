@@ -1,0 +1,39 @@
+
+
+# LOAD PACKAGES
+pacman::p_load(tidyverse,readxl,splitstackshape,ids)
+# FILE NAME
+xfile <- 'D:/_paxgreen/Classes/ExcelSample.xlsx'
+
+###
+## READ DATA
+dat0 <- read_excel(xfile) %>%
+data.frame()
+## TRANSFORM DATA
+dat1 <- dat0 %>%
+select(-1) %>%
+rename(name=1,lit =2,math=3,science=4,social=5) %>%
+mutate(name=tolower(name)) %>%
+mutate(name = gsub(' ','!',name)) %>%
+mutate(name= gsub('!!','!',name)) 
+
+# SPLIT NAME
+dat2 <- cSplit(dat1,'name','!') 
+
+dat3 <- dat2 %>%
+rename(apellido1 = 5, apellido2 = 6, nombre1=7,nombre2=8)
+
+## CREATE ID
+student_id <- random_id(nrow(dat3)) %>% 
+data.frame() %>%
+rename(id = 1)
+
+df_students <- cbind(student_id,dat3)
+
+key <- df_students %>% 
+select(id,apellido1,apellido2,nombre1,nombre2) %>%
+mutate(id2 = paste0(apellido1,apellido2,nombre1,nombre2))
+
+grades <- df_students %>%
+select(id,lit,math,science,social)
+
