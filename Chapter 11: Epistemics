@@ -1,0 +1,73 @@
+pacman::p_load(tidyverse,ggplot2,rstanarm)
+
+clo = readRDS(gzcon(url("http://pax.green/lessons/files/clorofilo.rds")))
+head(clo)
+                                                                                
+## MODEL FOR ALL DATA
+dat_all <- clo %>%
+select(HUC,CLO,PH,F,C) %>%
+mutate(logCLO = log(CLO)
+,logC = log(C)
+,logF = log(F))
+
+mod_all = lm(logCLO ~ logC + logF + PH, data = dat_all)
+
+# GET R2 VALUE, A MEASURE OF MODEL FITNESS
+summary(mod_all)$r.squared
+ 
+
+###############
+dat_HUC <- clo %>%
+filter(HUC == '020700110102') %>%
+select(CLO,PH,F,C) %>%
+mutate(logCLO = log(CLO)
+,logC = log(C)
+,logF = log(F)) 
+
+mod_HUC = lm(logCLO ~ logC + logF + PH, data = dat_HUC)
+summary(mod_HUC)$r.squared
+
+#####################
+ggplot(dat_all,aes(logC,logCLO)) + stat_smooth(level = 0.95, color = 'blue', size = 0.7)
+
+ggplot(dat_all,aes(logC,logCLO)) + stat_smooth(level = 0.95, color = 'blue', size = 0.7) +
+facet_wrap(~HUC)
+###########################################
+###########################################
+
+modelform2 <- 'logCLO ~ logC + logF + PH + (logC + logF + PH  | HUC)'
+
+## OPTIONS
+CHAINS = 2
+CORES = 2
+SEED = 2019
+ITER= 1000
+WARMUP = 500
+ADAPT = 0.95
+STEP = 0.01
+TREE = 30
+
+mod_HB <- stan_glmer(
+data = dat_all
+##
+,verbose = TRUE
+,prior = normal(0,1,autoscale=FALSE)
+,prior_intercept=normal(50,100,autoscale=FALSE)
+,seed = SEED
+,chains=CHAINS, iter=ITER, warmup=WARMUP, cores = CORES
+,QR = TRUE
+,control = list(
+adapt_delta = ADAPT
+,stepsize = STEP
+,max_treedepth=TREE
+)
+##
+,family = gaussian
+,formula = modelform2
+)
+
+###################################
+loo(mod_HB)
+pred <- posterior_predict(mod_HB,newdata=nd, draws = 1000)
+
+
