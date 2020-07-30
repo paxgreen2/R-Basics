@@ -1,0 +1,51 @@
+pacman::p_load(dplyr,ggplot2,stringr)
+
+notas <- readRDS('D:/_paxgreen/projects/cmt/CMTinfo/CMTinfoData/notas.rds') %>%
+arrange(nombre)
+
+toni <- readRDS('D:/_paxgreen/projects/cmt/CMTinfo/CMTinfoData/toni.rds') %>%
+arrange(nombre)
+
+key <- readRDS('D:/_paxgreen/projects/cmt/CMTinfo/CMTinfoData/key.rds') %>%
+select(nombre, CODIGO) %>%
+mutate(nombre = gsub(" ","",nombre))
+
+dat0 <- notas %>%
+filter(!is.na(Q2)) %>%
+mutate(Q1 = as.numeric(as.character(Q1))) %>%
+mutate(Q2 = as.numeric(as.character(Q2))) 
+
+promedia <- dat0 %>%
+group_by(nombre,anolectivo,curso) %>%
+summarise(mQ1 = mean(Q1),mQ2 = mean(Q2)) %>%
+data.frame() %>%
+arrange(nombre) %>%
+mutate(promedia = (mQ1 + mQ2)/2)  %>%
+select(nombre,promedia) %>%
+mutate(nombre = gsub(" ","",nombre)) %>%
+left_join(key) %>%
+filter(!is.na(CODIGO)) 
+att <- toni %>%
+select(CODIGO,ESTADO.CIVIL,TIPO.DE.FAMILIA
+,INGRESO..MENSUAL.FAMILIAR)
+
+dat1 <- promedia %>%
+left_join(att,by='CODIGO') %>%
+mutate(
+tipo = as.factor(TIPO.DE.FAMILIA)
+,income = ntile(INGRESO..MENSUAL.FAMILIAR,5)
+,income = as.factor(income)
+) 
+
+
+########################
+mid <- median(dat1$promedia)
+p <- ggplot(dat1) + theme_bw()
+p1 <- p + geom_dotplot(aes(x = promedia),binwidth=0.11)
+p2 <- p1 + geom_vline(xintercept = mid, linetype="dotted", color = "red", size=2.5)
+p2
+p3 <- p + geom_dotplot(aes(x = promedia,fill=income),binwidth=0.10,stackgroups = TRUE, method = "histodot", dotsize=1.0)
+p3
+
+p4 <- p + geom_dotplot(aes(x = promedia,fill=tipo),binwidth=0.10,stackgroups = TRUE, method = "histodot", dotsize=1.0)
+p4
